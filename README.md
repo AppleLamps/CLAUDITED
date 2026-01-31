@@ -26,7 +26,7 @@ cd CLAUDITED
 npm install
 ```
 
-2. **Set up environment variables:**
+1. **Set up environment variables:**
 
 ```bash
 # Copy the example env file
@@ -37,13 +37,13 @@ ADMIN_PASSWORD=your_secure_password_here
 JWT_SECRET=your_random_secret_key
 ```
 
-3. **Run the development server:**
+1. **Run the development server:**
 
 ```bash
 npm run dev
 ```
 
-4. **Open [http://localhost:3000](http://localhost:3000)**
+1. **Open [http://localhost:3000](http://localhost:3000)**
 
 ## Deployment on Vercel
 
@@ -55,13 +55,13 @@ npm run dev
 npm i -g vercel
 ```
 
-2. **Login to Vercel:**
+1. **Login to Vercel:**
 
 ```bash
 vercel login
 ```
 
-3. **Deploy:**
+1. **Deploy:**
 
 ```bash
 vercel --prod
