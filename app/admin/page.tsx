@@ -1,18 +1,8 @@
-CLAUDITED\app\admin\page.tsx
-```
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-interface ContentItem {
-  id: string;
-  title: string;
-  content: string;
-  type: "note" | "update" | "link";
-  createdAt: string;
-  updatedAt: string;
-}
+import type { ContentItem } from "@/lib/types";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"overview" | "content" | "settings">("overview");

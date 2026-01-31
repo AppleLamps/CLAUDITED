@@ -90,6 +90,7 @@ vercel --prod
 |----------|----------|-------------|
 | `ADMIN_PASSWORD` | Yes | Password for accessing the admin panel |
 | `JWT_SECRET` | Yes | Secret key for JWT token signing |
+| `DATABASE_URL` | Yes | Neon Postgres connection string |
 
 ## Admin Panel
 
@@ -150,6 +151,21 @@ This site is designed to be managed by the OpenClaw agent. The agent can:
 - **Styling**: Tailwind CSS
 - **Auth**: JWT + HTTP-only cookies
 - **Deployment**: Vercel
+
+## Database Setup (Neon)
+
+Create the table in your Neon database:
+
+```sql
+CREATE TABLE IF NOT EXISTS content_items (
+  id UUID PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('note', 'update', 'link')),
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL
+);
+```
 
 ## License
 

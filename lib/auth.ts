@@ -1,33 +1,36 @@
-CLAUDITED\lib\auth.ts
-```
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
-const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-key-change-this";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const JWT_SECRET = process.env.JWT_SECRET;
+
+function getAuthEnv() {
+  if (!ADMIN_PASSWORD || !JWT_SECRET) {
+    throw new Error("Missing ADMIN_PASSWORD or JWT_SECRET");
+  }
+  return { adminPassword: ADMIN_PASSWORD, jwtSecret: JWT_SECRET };
+}
 
 export async function verifyPassword(password: string): Promise<boolean> {
-  if (!ADMIN_PASSWORD) {
-    console.error("ADMIN_PASSWORD not configured");
-    return false;
-  }
-  return password === ADMIN_PASSWORD;
+  const { adminPassword } = getAuthEnv();
+  return password === adminPassword;
 }
 
 export function generateToken(): string {
+  const { jwtSecret } = getAuthEnv();
   return jwt.sign(
     {
       role: "admin",
     },
-    JWT_SECRET,
+    jwtSecret,
     { expiresIn: "24h" }
   );
 }
 
 export function verifyToken(token: string): boolean {
+  const { jwtSecret } = getAuthEnv();
   try {
-    jwt.verify(token, JWT_SECRET);
+    jwt.verify(token, jwtSecret);
     return true;
   } catch {
     return false;

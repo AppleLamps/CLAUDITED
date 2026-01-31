@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
-import { contentStore, ContentItem } from "@/lib/store";
+import { getSql } from "@/lib/db";
+import type { ContentItem } from "@/lib/types";
 
 // Helper to verify authentication
 async function verifyAuth(): Promise<boolean> {
@@ -27,11 +28,23 @@ export async function PUT(
   }
 
   try {
+    const sql = getSql();
     const { id } = await params;
     const body = await request.json();
     const { title, content, type } = body;
 
-    const existingItem = contentStore.get(id);
+    const existing = (await sql`
+      SELECT
+        id,
+        title,
+        content,
+        type,
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
+      FROM content_items
+      WHERE id = ${id}
+    `) as ContentItem[];
+    const existingItem = existing[0];
     if (!existingItem) {
       return NextResponse.json(
         { success: false, error: "Content not found" },
@@ -47,10 +60,25 @@ export async function PUT(
       updatedAt: new Date().toISOString(),
     };
 
-    contentStore.set(id, updatedItem);
+    const updated = (await sql`
+      UPDATE content_items
+      SET
+        title = ${updatedItem.title},
+        content = ${updatedItem.content},
+        type = ${updatedItem.type},
+        updated_at = ${updatedItem.updatedAt}
+      WHERE id = ${id}
+      RETURNING
+        id,
+        title,
+        content,
+        type,
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
+    `) as ContentItem[];
 
     return NextResponse.json(
-      { success: true, item: updatedItem },
+      { success: true, item: updated[0] },
       { status: 200 },
     );
   } catch (error) {
@@ -64,7 +92,7 @@ export async function PUT(
 
 // DELETE /api/content/[id] - Delete content item
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const isAuthenticated = await verifyAuth();
@@ -77,17 +105,20 @@ export async function DELETE(
   }
 
   try {
+    const sql = getSql();
     const { id } = await params;
 
-    const existingItem = contentStore.get(id);
-    if (!existingItem) {
+    const deleted = (await sql`
+      DELETE FROM content_items
+      WHERE id = ${id}
+      RETURNING id
+    `) as { id: string }[];
+    if (deleted.length === 0) {
       return NextResponse.json(
         { success: false, error: "Content not found" },
         { status: 404 },
       );
     }
-
-    contentStore.delete(id);
 
     return NextResponse.json(
       { success: true, message: "Content deleted" },
