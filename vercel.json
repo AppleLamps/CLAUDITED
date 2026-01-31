@@ -1,9 +1,5 @@
-CLAUDITED\vercel.json
-```
 {
   "version": 2,
-  "name": "claudited",
-  "alias": ["claudited.com", "www.claudited.com"],
   "buildCommand": "next build",
   "devCommand": "next dev",
   "installCommand": "npm install",
