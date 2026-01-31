@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
-import { contentStore, ContentItem } from "@/lib/store";
+import { getSql } from "@/lib/db";
+import type { ContentItem } from "@/lib/types";
 
 // Helper to verify authentication
 async function verifyAuth(): Promise<boolean> {
@@ -13,12 +14,20 @@ async function verifyAuth(): Promise<boolean> {
 }
 
 // GET /api/content - List all content
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const items = Array.from(contentStore.values()).sort(
-      (a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-    );
+    const sql = getSql();
+    const items = (await sql`
+      SELECT
+        id,
+        title,
+        content,
+        type,
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
+      FROM content_items
+      ORDER BY updated_at DESC
+    `) as ContentItem[];
 
     return NextResponse.json({ success: true, items }, { status: 200 });
   } catch (error) {
@@ -52,6 +61,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const sql = getSql();
     const now = new Date().toISOString();
     const newItem: ContentItem = {
       id: crypto.randomUUID(),
@@ -62,9 +72,29 @@ export async function POST(request: NextRequest) {
       updatedAt: now,
     };
 
-    contentStore.set(newItem.id, newItem);
+    const created = (await sql`
+      INSERT INTO content_items (id, title, content, type, created_at, updated_at)
+      VALUES (
+        ${newItem.id},
+        ${newItem.title},
+        ${newItem.content},
+        ${newItem.type},
+        ${newItem.createdAt},
+        ${newItem.updatedAt}
+      )
+      RETURNING
+        id,
+        title,
+        content,
+        type,
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
+    `) as ContentItem[];
 
-    return NextResponse.json({ success: true, item: newItem }, { status: 201 });
+    return NextResponse.json(
+      { success: true, item: created[0] },
+      { status: 201 },
+    );
   } catch (error) {
     console.error("Error creating content:", error);
     return NextResponse.json(

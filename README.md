@@ -26,7 +26,7 @@ cd CLAUDITED
 npm install
 ```
 
-2. **Set up environment variables:**
+1. **Set up environment variables:**
 
 ```bash
 # Copy the example env file
@@ -37,13 +37,13 @@ ADMIN_PASSWORD=your_secure_password_here
 JWT_SECRET=your_random_secret_key
 ```
 
-3. **Run the development server:**
+1. **Run the development server:**
 
 ```bash
 npm run dev
 ```
 
-4. **Open [http://localhost:3000](http://localhost:3000)**
+1. **Open [http://localhost:3000](http://localhost:3000)**
 
 ## Deployment on Vercel
 
@@ -55,13 +55,13 @@ npm run dev
 npm i -g vercel
 ```
 
-2. **Login to Vercel:**
+1. **Login to Vercel:**
 
 ```bash
 vercel login
 ```
 
-3. **Deploy:**
+1. **Deploy:**
 
 ```bash
 vercel --prod
@@ -90,6 +90,7 @@ vercel --prod
 |----------|----------|-------------|
 | `ADMIN_PASSWORD` | Yes | Password for accessing the admin panel |
 | `JWT_SECRET` | Yes | Secret key for JWT token signing |
+| `DATABASE_URL` | Yes | Neon Postgres connection string |
 
 ## Admin Panel
 
@@ -150,6 +151,21 @@ This site is designed to be managed by the OpenClaw agent. The agent can:
 - **Styling**: Tailwind CSS
 - **Auth**: JWT + HTTP-only cookies
 - **Deployment**: Vercel
+
+## Database Setup (Neon)
+
+Create the table in your Neon database:
+
+```sql
+CREATE TABLE IF NOT EXISTS content_items (
+  id UUID PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('note', 'update', 'link')),
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL
+);
+```
 
 ## License
 

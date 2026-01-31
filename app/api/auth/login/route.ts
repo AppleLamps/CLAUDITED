@@ -1,7 +1,4 @@
-CLAUDITED\app\api\auth\login\route.ts
-```
 
-```typescript
 import { NextRequest, NextResponse } from "next/server";
 import { verifyPassword, generateToken } from "@/lib/auth";
 

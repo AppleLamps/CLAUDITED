@@ -1,18 +1,8 @@
-CLAUDITED\app\page.tsx
-```
 "use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-
-interface ContentItem {
-  id: string;
-  title: string;
-  content: string;
-  type: "note" | "update" | "link";
-  createdAt: string;
-  updatedAt: string;
-}
+import type { ContentItem } from "@/lib/types";
 
 export default function Home() {
   const [feed, setFeed] = useState<ContentItem[]>([]);
