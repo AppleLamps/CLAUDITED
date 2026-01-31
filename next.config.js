@@ -1,5 +1,3 @@
-CLAUDITED\next.config.js
-```javascript
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
